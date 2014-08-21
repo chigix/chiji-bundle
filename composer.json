@@ -13,18 +13,14 @@
     ],
     "require": {
         "php": ">=5.4",
-        "symfony/framework-bundle": "~2.2"
+        "symfony/framework-bundle": "~2.2",
+        "chigix/chiji":"@dev"
     },
     "suggest": {
         "symfony/web-profiler-bundle": "to use the data collector",
     },
     "autoload": {
-        "psr-0": { "Chigi\\Bundle\\ChijiBundle": "" }
+        "psr-4": { "Chigi\\Bundle\\ChijiBundle\\": "" }
     },
-    "minimum-stability": "dev",
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.2.x-dev"
-        }
-    }
+    "minimum-stability": "dev"
 }
