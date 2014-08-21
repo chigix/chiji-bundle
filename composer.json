@@ -1,0 +1,30 @@
+{
+    "name": "chigix/chiji-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony ChijiBundle",
+    "keywords": ["Symfony", "Front-end", "Chigi", "Asset"],
+    "homepage": "http://www.chigix.com",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Richard Lea",
+            "email": "chigix@zoho.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "symfony/framework-bundle": "~2.2"
+    },
+    "suggest": {
+        "symfony/web-profiler-bundle": "to use the data collector",
+    },
+    "autoload": {
+        "psr-0": { "Chigi\\Bundle\\ChijiBundle": "" }
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.2.x-dev"
+        }
+    }
+}

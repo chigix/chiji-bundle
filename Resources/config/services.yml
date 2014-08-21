@@ -1,0 +1,7 @@
+parameters:
+#    chigi_chiji.example.class: Chigi\Bundle\ChijiBundle\Example
+
+services:
+#    chigi_chiji.example:
+#        class: %chigi_chiji.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

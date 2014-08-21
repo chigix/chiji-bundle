@@ -1,0 +1,3 @@
+chigi_chiji_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: ChigiChijiBundle:Default:index }
