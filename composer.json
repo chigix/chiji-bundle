@@ -21,6 +21,5 @@
     },
     "autoload": {
         "psr-4": { "Chigi\\Bundle\\ChijiBundle\\": "" }
-    },
-    "minimum-stability": "dev"
+    }
 }
