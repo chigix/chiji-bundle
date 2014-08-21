@@ -17,7 +17,7 @@
         "chigix/chiji":"@dev"
     },
     "suggest": {
-        "symfony/web-profiler-bundle": "to use the data collector",
+        "symfony/web-profiler-bundle": "to use the data collector"
     },
     "autoload": {
         "psr-4": { "Chigi\\Bundle\\ChijiBundle\\": "" }
