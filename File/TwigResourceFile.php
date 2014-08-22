@@ -18,7 +18,8 @@
 
 namespace Chigi\Bundle\ChijiBundle\File;
 
-use Chigi\Bundle\ChijiBundle\Annotation\Annotation;
+use Chigi\Chiji\Annotation\Annotation;
+use Chigi\Chiji\File\HtmlResourceFile;
 
 /**
  * Description of TwigResourceFile
