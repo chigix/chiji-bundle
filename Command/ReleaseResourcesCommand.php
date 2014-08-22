@@ -18,11 +18,12 @@
 
 namespace Chigi\Bundle\ChijiBundle\Command;
 
-use Chigi\Bundle\ChijiBundle\Exception\ChijiRescourcesNotFound;
-use Chigi\Bundle\ChijiBundle\File\AbstractResourceFile;
-use Chigi\Bundle\ChijiBundle\File\HtmlResourceFile;
-use Chigi\Bundle\ChijiBundle\Project\Project;
-use Chigi\Bundle\ChijiBundle\Util\ResourcesManager;
+use Chigi\Bundle\ChijiBundle\File\TwigResourceFile;
+use Chigi\Chiji\Exception\ResourceNotFoundException;
+use Chigi\Chiji\File\AbstractResourceFile;
+use Chigi\Chiji\File\RequiresMapInterface;
+use Chigi\Chiji\Project\Project;
+use Chigi\Chiji\Util\ResourcesManager;
 use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
@@ -83,8 +84,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
         $this->clearBundleRelease($bundle);
         $chiji_resources_path = $bundle->getPath() . '/Resources/chiji';
         if (!is_dir($chiji_resources_path)) {
-            throw new ChijiRescourcesNotFound(
-            sprintf("The Chiji resources path (\"%s\") NOT FOUND.", $chiji_resources_path));
+            throw new ResourceNotFoundException(sprintf("The Path (\"%s\") NOT FOUND", $chiji_resources_path));
         }
         $project = new Project($chiji_resources_path . '/chiji-conf.php');
         //$template_path = $this->getContainer()->get('templating.locator')->locate($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:chiji:edit.html.twig'));
@@ -98,13 +98,13 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
             /* @var $template TemplateReferenceInterface */
             $template->set("bundle", $bundle->getName());
             ResourcesManager::getResource(
-                    new \Chigi\Bundle\ChijiBundle\File\TwigResourceFile($this->getContainer()->get('templating.locator')->locate($template))
+                    new TwigResourceFile($this->getContainer()->get('templating.locator')->locate($template))
             );
         }
         foreach (ResourcesManager::getAll() as $resource) {
             // 遍历所有 resource 对象，并针对有目标输入流的资源对象写入模板 HTML
             /* @var $resource AbstractResourceFile */
-            if ($resource instanceof \Chigi\Bundle\ChijiBundle\File\RequiresMapInterface) {
+            if ($resource instanceof RequiresMapInterface) {
                 var_dump($resource->getRequires()->getArrayCopy());
             }
 //            foreach ($print_nodes as $node) {
@@ -177,7 +177,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
 
     /**
      * Get the realpath for the target TemplateReference object
-     * @param \Symfony\Component\Templating\TemplateReferenceInterface $template
+     * @param TemplateReferenceInterface $template
      * @return string
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
@@ -202,7 +202,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
 
     /**
      * Clear the old compilation cache and init the project release dir.
-     * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
+     * @param BundleInterface $bundle
      */
     protected function clearBundleRelease(BundleInterface $bundle) {
         /* @var $filesystem Filesystem */
