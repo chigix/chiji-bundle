@@ -19,11 +19,13 @@
 namespace Chigi\Bundle\ChijiBundle\Command;
 
 use Chigi\Bundle\ChijiBundle\File\TwigResourceFile;
+use Chigi\Chiji\Annotation\FunctionAnnotation;
 use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\File\RequiresMapInterface;
 use Chigi\Chiji\Project\Project;
 use Chigi\Chiji\Util\ResourcesManager;
+use Chigi\Chiji\Util\StaticsManager;
 use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
@@ -105,7 +107,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
             // 遍历所有 resource 对象，并针对有目标输入流的资源对象写入模板 HTML
             /* @var $resource AbstractResourceFile */
             if ($resource instanceof RequiresMapInterface) {
-                var_dump($resource->getRequires()->getArrayCopy());
+                //var_dump($resource->getRequires()->getArrayCopy());
             }
 //            foreach ($print_nodes as $node) {
 //                if (trim($node) === "") {
@@ -121,6 +123,10 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
 //                    file_put_contents($target_subtemplate, "QQCUM");
 //                }
 //            }
+        }
+        foreach (StaticsManager::getPostEndFunctionAnnotations() as $function) {
+            /* @var $function FunctionAnnotation */
+            $function->execute();
         }
         exit;
         /* @var $kernel KernelInterface */
