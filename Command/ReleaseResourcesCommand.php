@@ -75,6 +75,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
      * @see    setCode()
      */
     protected function execute(InputInterface $input, OutputInterface $output) {
+        $this->initStatics();
         /* @var $filesystem Filesystem */
         $filesystem = $this->getContainer()->get('filesystem');
         try {
@@ -83,12 +84,14 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
         } catch (InvalidArgumentException $exc) {
             throw $exc;
         }
+        \Chigi\Bundle\ChijiBundle\Util\StaticsManager::setBundle($bundle);
         $this->clearBundleRelease($bundle);
         $chiji_resources_path = $bundle->getPath() . '/Resources/chiji';
         if (!is_dir($chiji_resources_path)) {
             throw new ResourceNotFoundException(sprintf("The Path (\"%s\") NOT FOUND", $chiji_resources_path));
         }
         $project = new Project($chiji_resources_path . '/chiji-conf.php');
+        Project::registProject($project, TRUE);
         //$template_path = $this->getContainer()->get('templating.locator')->locate($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:chiji:edit.html.twig'));
         //var_dump($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:Post:edit.html.twig')->getPath());
         //var_dump($this->getTemplatePath($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:Post:edit.html.twig')));
@@ -219,6 +222,13 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
         } else {
             $filesystem->mkdir($chiji_subview_path);
         }
+    }
+
+    /**
+     * Initial the current symfony statics manager
+     */
+    private function initStatics() {
+        \Chigi\Bundle\ChijiBundle\Util\StaticsManager::setContainer($this->getContainer());
     }
 
 }
