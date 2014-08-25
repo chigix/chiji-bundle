@@ -19,7 +19,9 @@
 namespace Chigi\Bundle\ChijiBundle\Project;
 
 use Chigi\Bundle\ChijiBundle\Util\StaticsManager;
+use Chigi\Chiji\Collection\RoadMap;
 use Chigi\Chiji\Project\ProjectConfig;
+use Chigi\Chiji\Project\SourceRoad;
 use Chigi\Chiji\Util\PathHelper;
 
 /**
@@ -29,18 +31,22 @@ use Chigi\Chiji\Util\PathHelper;
  */
 abstract class SymfonyBundleProjectConfig extends ProjectConfig {
 
-    public function getReleaseRootPath() {
-        $bundle_name = strtolower(preg_replace('#[A-Z][a-z0-9]#', '_$0', $this->getProjectName()));
-        return PathHelper::searchRealPath(StaticsManager::getKernel()->getRootDir(), "../web/chiji/" . $bundle_name) . '/%s';
-    }
-
-    public function getReleaseRootUrl() {
-        $bundle_name = strtolower(preg_replace('#[A-Z][a-z0-9]#', '_$0', $this->getProjectName()));
-        return "{{ asset(\"chiji/" . $bundle_name . "/%s\") }}";
-    }
-
     public function getProjectName() {
         return StaticsManager::getBundle()->getName();
+    }
+
+    /**
+     * Returns the roadmap for this project.
+     * @return RoadMap
+     */
+    public function getRoadMap() {
+        $bundle_name = strtolower(preg_replace('#[A-Z][a-z0-9]#', '_$0', $this->getProjectName()));
+        $road_map = new RoadMap();
+        $rootRoad = new RootRoad("ROOT", $this->getProjectRootPath(), PathHelper::searchRealPath(StaticsManager::getKernel()->getRootDir(), '../web/chiji/' . $bundle_name));
+        $rootRoad->bundleName = $bundle_name;
+        $road_map->append($rootRoad);
+        $road_map->append(new TwigRoad('TWIG', PathHelper::searchRealPath(StaticsManager::getBundle()->getPath(), 'Resources/views'), PathHelper::searchRealPath(StaticsManager::getBundle()->getPath(), 'Resources/views/chiji')));
+        return $road_map;
     }
 
 }
