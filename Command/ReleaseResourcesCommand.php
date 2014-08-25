@@ -18,13 +18,10 @@
 
 namespace Chigi\Bundle\ChijiBundle\Command;
 
-use Chigi\Bundle\ChijiBundle\File\TwigResourceFile;
 use Chigi\Chiji\Annotation\FunctionAnnotation;
 use Chigi\Chiji\Exception\ResourceNotFoundException;
-use Chigi\Chiji\File\AbstractResourceFile;
-use Chigi\Chiji\File\RequiresMapInterface;
 use Chigi\Chiji\Project\Project;
-use Chigi\Chiji\Util\ResourcesManager;
+use Chigi\Chiji\Project\SourceRoad;
 use Chigi\Chiji\Util\StaticsManager;
 use InvalidArgumentException;
 use LogicException;
@@ -85,33 +82,36 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
             throw $exc;
         }
         \Chigi\Bundle\ChijiBundle\Util\StaticsManager::setBundle($bundle);
-        $this->clearBundleRelease($bundle);
+        //$this->clearBundleRelease($bundle);
         $chiji_resources_path = $bundle->getPath() . '/Resources/chiji';
         if (!is_dir($chiji_resources_path)) {
             throw new ResourceNotFoundException(sprintf("The Path (\"%s\") NOT FOUND", $chiji_resources_path));
         }
         $project = new Project($chiji_resources_path . '/chiji-conf.php');
         Project::registProject($project, TRUE);
+        foreach ($project->getReleaseDirs() as $dir_path) {
+            $this->taskCleanDir($dir_path)->run();
+        }
+        foreach ($project->getSourceDirs() as $dir_path) {
+            if (is_dir($dir_path)) {
+                $finder = new Finder();
+                foreach ($finder->files()->followLinks()->in($dir_path) as $file) {
+                    /* @var $file \Symfony\Component\Finder\SplFileInfo */
+                    if (($road = $project->getMatchRoad($file->getPathname())) instanceof SourceRoad) {
+                        var_dump($road->getName() . ':' . $file->getPathname());
+                    }
+                }
+            }
+        }
         //$template_path = $this->getContainer()->get('templating.locator')->locate($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:chiji:edit.html.twig'));
         //var_dump($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:Post:edit.html.twig')->getPath());
         //var_dump($this->getTemplatePath($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:Post:edit.html.twig')));
-        /* @var $templates array<TemplateReference> */
-        $templates = $this->findTemplatesInFolder($bundle->getPath() . '/Resources/views');
-        foreach ($templates as $template) {
-            // 对所有 twig 模板文件进行遍历，交由ResourceManager 进行管理
-            // 进而在 ResourceManager 中形成 加载资源表 map
-            /* @var $template TemplateReferenceInterface */
-            $template->set("bundle", $bundle->getName());
-            ResourcesManager::getResource(
-                    new TwigResourceFile($this->getContainer()->get('templating.locator')->locate($template))
-            );
-        }
-        foreach (ResourcesManager::getAll() as $resource) {
-            // 遍历所有 resource 对象，并针对有目标输入流的资源对象写入模板 HTML
-            /* @var $resource AbstractResourceFile */
-            if ($resource instanceof RequiresMapInterface) {
-                //var_dump($resource->getRequires()->getArrayCopy());
-            }
+//        foreach (ResourcesManager::getAll() as $resource) {
+//            // 遍历所有 resource 对象，并针对有目标输入流的资源对象写入模板 HTML
+//            /* @var $resource AbstractResourceFile */
+//            if ($resource instanceof RequiresMapInterface) {
+//                //var_dump($resource->getRequires()->getArrayCopy());
+//            }
 //            foreach ($print_nodes as $node) {
 //                if (trim($node) === "") {
 //                    continue;
@@ -126,7 +126,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
 //                    file_put_contents($target_subtemplate, "QQCUM");
 //                }
 //            }
-        }
+//        }
         foreach (StaticsManager::getPostEndFunctionAnnotations() as $function) {
             /* @var $function FunctionAnnotation */
             $function->execute();
