@@ -45,6 +45,8 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
 
     use \Robo\Task\FileSystem;
 
+use \Robo\Output;
+
     /**
      * Configures the current command.
      */
@@ -98,7 +100,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
                 foreach ($finder->files()->followLinks()->in($dir_path) as $file) {
                     /* @var $file \Symfony\Component\Finder\SplFileInfo */
                     if (($road = $project->getMatchRoad($file->getPathname())) instanceof SourceRoad) {
-                        var_dump($road->getName() . ':' . $file->getPathname());
+                        $this->say('<' . $road->getName() . '>:' . $file->getPathname());
                     }
                 }
             }
