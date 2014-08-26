@@ -37,7 +37,7 @@ class RootRoad extends SourceRoad {
     }
     
     protected function getUrlStampType() {
-        return UrlStampEnum::TIME_HUMAN;
+        return UrlStampEnum::HASH;
     }
 
 }
