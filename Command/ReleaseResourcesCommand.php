@@ -74,7 +74,6 @@ use \Robo\Output;
      * @see    setCode()
      */
     protected function execute(InputInterface $input, OutputInterface $output) {
-        $this->initStatics();
         /* @var $filesystem Filesystem */
         $filesystem = $this->getContainer()->get('filesystem');
         try {
@@ -83,18 +82,22 @@ use \Robo\Output;
         } catch (InvalidArgumentException $exc) {
             throw $exc;
         }
+        \Chigi\Bundle\ChijiBundle\Util\StaticsManager::setContainer($this->getContainer());
         \Chigi\Bundle\ChijiBundle\Util\StaticsManager::setBundle($bundle);
-        //$this->clearBundleRelease($bundle);
+        /* @var $kernel KernelInterface */
+        $kernel = $this->getContainer()->get('kernel');
         $chiji_resources_path = $bundle->getPath() . '/Resources/chiji';
         if (!is_dir($chiji_resources_path)) {
             throw new ResourceNotFoundException(sprintf("The Path (\"%s\") NOT FOUND", $chiji_resources_path));
         }
         $project = new Project($chiji_resources_path . '/chiji-conf.php');
         Project::registProject($project, TRUE);
+        // Clear all the release directories.
         foreach ($project->getReleaseDirs() as $dir_path) {
             $this->taskCleanDir($dir_path)->run();
         }
-        // Scan all of the resource from the sourceDirs defined in roadmaps.
+        // Scan all of the resource from the sourceDirs defined in roadmaps<br/>
+        // with registering.
         foreach ($project->getSourceDirs() as $dir_path) {
             if (is_dir($dir_path)) {
                 $finder = new Finder();
@@ -135,34 +138,9 @@ use \Robo\Output;
             $function->execute();
         }
         exit;
-        /* @var $kernel KernelInterface */
-        $kernel = $this->getContainer()->get('kernel');
         var_dump($kernel->getEnvironment());
         var_dump($bundle->getPath() . '/Resources/');
         var_dump($this->getBasePathForClass($bundle->getName(), $bundle->getNamespace(), $bundle->getPath()));
-    }
-
-    /**
-     * Find templates in the given directory.
-     *
-     * @param string $dir The folder where to look for templates
-     *
-     * @return array<Symfony\Component\Templating\TemplateReferenceInterface> An array of templates of type TemplateReferenceInterface
-     */
-    private function findTemplatesInFolder($dir) {
-        $templates = array();
-
-        if (is_dir($dir)) {
-            $finder = new Finder();
-            foreach ($finder->files()->followLinks()->in($dir) as $file) {
-                $template = $this->getContainer()->get('templating.filename_parser')->parse($file->getRelativePathname());
-                if (false !== $template) {
-                    $templates[] = $template;
-                }
-            }
-        }
-
-        return $templates;
     }
 
     /**
@@ -210,28 +188,6 @@ use \Robo\Output;
             list($bundleName, $path) = explode('/', $bundleName, 2);
         }
         return $this->getApplication()->getKernel()->getBundle($bundleName)->getPath() . '/' . $path;
-    }
-
-    /**
-     * Clear the old compilation cache and init the project release dir.
-     * @param BundleInterface $bundle
-     */
-    protected function clearBundleRelease(BundleInterface $bundle) {
-        /* @var $filesystem Filesystem */
-        $filesystem = $this->getContainer()->get('filesystem');
-        $chiji_subview_path = $bundle->getPath() . '/Resources/views/chiji';
-        if (is_dir($chiji_subview_path)) {
-            $this->taskCleanDir($chiji_subview_path)->run();
-        } else {
-            $filesystem->mkdir($chiji_subview_path);
-        }
-    }
-
-    /**
-     * Initial the current symfony statics manager
-     */
-    private function initStatics() {
-        \Chigi\Bundle\ChijiBundle\Util\StaticsManager::setContainer($this->getContainer());
     }
 
 }
