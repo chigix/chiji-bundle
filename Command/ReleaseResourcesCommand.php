@@ -94,6 +94,7 @@ use \Robo\Output;
         foreach ($project->getReleaseDirs() as $dir_path) {
             $this->taskCleanDir($dir_path)->run();
         }
+        // Scan all of the resource from the sourceDirs defined in roadmaps.
         foreach ($project->getSourceDirs() as $dir_path) {
             if (is_dir($dir_path)) {
                 $finder = new Finder();
