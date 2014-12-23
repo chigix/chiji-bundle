@@ -20,7 +20,7 @@
         "symfony/web-profiler-bundle": "to use the data collector"
     },
     "autoload": {
-        "psr-4": { "Chigi\\Bundle\\ChijiBundle\\": "" }
+        "psr-4": { "Chigi\\Bundle\\ChijiBundle\\": "src/" }
     },
     "minimum-stability": "dev"
 }
