@@ -21,7 +21,7 @@ namespace Chigi\Bundle\ChijiBundle\Project;
 use Chigi\Bundle\ChijiBundle\File\TwigResourceFile;
 use Chigi\Chiji\Exception\ResourceNotFoundException;
 use Chigi\Chiji\Project\SourceRoad;
-use Chigi\Chiji\Util\PathHelper;
+use Chigi\Component\IO\File;
 
 /**
  * Description of TwigRoad
@@ -34,13 +34,13 @@ final class TwigRoad extends SourceRoad {
         return '.+\.twig$';
     }
 
-    protected function resourcePathMatch($file_path) {
-        $source_dir = str_replace('#', '\#', $this->getSourceDir());
-        $file_path = PathHelper::pathStandardize($file_path);
-        if (strpos($file_path, PathHelper::searchRealPath($this->getSourceDir(), 'chiji')) !== FALSE) {
+    protected function resourcePathMatch(File $file) {
+        $source_dirpath = str_replace('#', '\#', $this->getSourceDir()->getAbsolutePath());
+        $chiji_dir = new File("chiji", $this->getSourceDir()->getAbsolutePath());
+        if (strpos($file->getAbsolutePath(), $chiji_dir->getAbsolutePath()) !== FALSE) {
             return FALSE;
         }
-        return preg_match('#^' . $source_dir . '/' . $this->getRegex() . '#', $file_path) ? TRUE : FALSE;
+        return preg_match('#^' . $source_dirpath . '/' . $this->getRegex() . '#', $file->getAbsolutePath()) ? TRUE : FALSE;
     }
 
     /**

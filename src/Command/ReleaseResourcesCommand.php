@@ -103,7 +103,7 @@ use \Robo\Output;
                 $finder = new Finder();
                 foreach ($finder->files()->followLinks()->in($dir_path) as $file) {
                     /* @var $file \Symfony\Component\Finder\SplFileInfo */
-                    if (($road = $project->getMatchRoad($file->getPathname())) instanceof SourceRoad) {
+                    if (($road = $project->getMatchRoad(new \Chigi\Component\IO\File($file->getPathname()))) instanceof SourceRoad) {
                         $this->say('<' . $road->getName() . '>:' . $file->getPathname());
                     }
                 }

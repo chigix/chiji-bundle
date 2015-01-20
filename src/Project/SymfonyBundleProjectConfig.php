@@ -21,8 +21,7 @@ namespace Chigi\Bundle\ChijiBundle\Project;
 use Chigi\Bundle\ChijiBundle\Util\StaticsManager;
 use Chigi\Chiji\Collection\RoadMap;
 use Chigi\Chiji\Project\ProjectConfig;
-use Chigi\Chiji\Project\SourceRoad;
-use Chigi\Chiji\Util\PathHelper;
+use Chigi\Component\IO\File;
 
 /**
  * Description of SymfonyBundleProject
@@ -42,13 +41,13 @@ abstract class SymfonyBundleProjectConfig extends ProjectConfig {
     public function getRoadMap() {
         $bundle_name = strtolower(preg_replace('#[A-Z][a-z0-9]#', '_$0', $this->getProjectName()));
         $road_map = new RoadMap();
-        $lessRoad = new BundleLessRoad("LESSCSS", $this->getProjectRootPath(), PathHelper::searchRealPath(StaticsManager::getKernel()->getRootDir(), '../web/chiji/' . $bundle_name));
+        $lessRoad = new BundleLessRoad("LESSCSS", $this->getProjectRootDir(), new File("../web/chiji/" . $bundle_name, StaticsManager::getKernel()->getRootDir()));
         $lessRoad->bundleName = $bundle_name;
-        $rootRoad = new RootRoad("ROOT", $this->getProjectRootPath(), PathHelper::searchRealPath(StaticsManager::getKernel()->getRootDir(), '../web/chiji/' . $bundle_name));
+        $rootRoad = new RootRoad("ROOT", $this->getProjectRootDir(), new File('../web/chiji/' . $bundle_name, StaticsManager::getKernel()->getRootDir()));
         $rootRoad->bundleName = $bundle_name;
         $road_map->append($lessRoad);
         $road_map->append($rootRoad);
-        $road_map->append(new TwigRoad('TWIG', PathHelper::searchRealPath(StaticsManager::getBundle()->getPath(), 'Resources/views'), PathHelper::searchRealPath(StaticsManager::getBundle()->getPath(), 'Resources/views/chiji')));
+        $road_map->append(new TwigRoad('TWIG', new File('Resources/views', StaticsManager::getBundle()->getPath()), new File('Resources/views/chiji', StaticsManager::getBundle()->getPath())));
         return $road_map;
     }
 
