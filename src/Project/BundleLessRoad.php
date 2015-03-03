@@ -36,7 +36,7 @@ class BundleLessRoad extends LessRoad {
      */
     protected function getReleaseFormatMap() {
         $map = parent::getReleaseFormatMap();
-        $map['TWIG_CSS_LINK'] = '<link type="text/css" href="{{ asset("chiji/' . $this->bundleName . '/[LESS_FILE]") }}?[STAMP]" rel="stylesheet">';
+        $map['TWIG_CSS_LINK'] = '<link type="text/css" href="{{ asset("chiji/' . $this->bundleName . '/[FILE]") }}?[STAMP]" rel="stylesheet">';
         return $map;
     }
 
