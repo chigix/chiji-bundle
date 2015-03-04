@@ -45,12 +45,12 @@ final class TwigRoad extends SourceRoad {
 
     /**
      * Get the resource object with specific internal resource class.
-     * @param string $resource_path Support absolute path ONLY.
+     * @param File $file The resource as File Object.
      * @return TwigResourceFile The resource object from factory
      * @throws ResourceNotFoundException
      */
-    protected function resourceFactory($resource_path) {
-        return new TwigResourceFile($resource_path);
+    protected function resourceFactory(File $file) {
+        return new TwigResourceFile($file);
     }
 
 }

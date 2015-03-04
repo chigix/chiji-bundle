@@ -91,7 +91,7 @@ use \Robo\Output;
             throw new ResourceNotFoundException(sprintf("The Path (\"%s\") NOT FOUND", $chiji_resources_path));
         }
         $project = new Project($chiji_resources_path . '/chiji-conf.php');
-        Project::registerProject($project, TRUE);
+        \Chigi\Chiji\Util\ProjectUtil::registerProject($project);
         // Clear all the release directories.
         foreach ($project->getReleaseDirs() as $dir_path) {
             $this->taskCleanDir($dir_path)->run();
