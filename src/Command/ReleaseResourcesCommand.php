@@ -97,17 +97,33 @@ use \Robo\Output;
             $this->taskCleanDir($dir_path)->run();
         }
         $project->getCacheManager()->openCache();
-        foreach ($project->getSourceDirs() as $dir_path) {
-            if (is_dir($dir_path)) {
-                $finder = new Finder();
-                foreach ($finder->files()->followLinks()->in($dir_path) as $file) {
-                    /* @var $file \Symfony\Component\Finder\SplFileInfo */
-                    if (($road = $project->getMatchRoad(new \Chigi\Component\IO\File($file->getPathname()))) instanceof SourceRoad) {
-                        $this->say('<' . $road->getName() . '>:' . $file->getPathname());
+        do {
+            $newly_registered_pathhash = array();
+            foreach ($project->getSourceDirs() as $dir_path) {
+                if (\is_dir($dir_path)) {
+                    $finder = new Finder();
+                    foreach ($finder->files()->followLinks()->in($dir_path) as $spl_file) {
+                        $file = new \Chigi\Component\IO\File($spl_file->getPathname());
+                        if (!is_null($project->getResourceByFile($file))) {
+                            continue;
+                        }
+                        array_push($newly_registered_pathhash, md5($file->getAbsolutePath()));
+                        if (($road = $project->getMatchRoad($file)) instanceof SourceRoad) {
+                            $this->say('Registered <' . $road->getName() . '>:' . $file->getAbsolutePath());
+                        }
                     }
                 }
             }
-        }
+            foreach ($project->getRegisteredResources() as $resource) {
+                /* @var $resource \Chigi\Chiji\File\AbstractResourceFile */
+                if (!in_array(md5($resource->getRealPath()), $newly_registered_pathhash)) {
+                    continue;
+                }
+                // ONLY BUILD newly registered file preventing looply building.
+                $road = $project->getMatchRoad($resource->getFile());
+                $road->buildCache($resource);
+            }
+        } while (count($newly_registered_pathhash) > 0);
         foreach ($project->getRegisteredResources() as $resource) {
             /* @var $resource \Chigi\Chiji\File\AbstractResourceFile */
             if ($resource instanceof \Chigi\Chiji\File\Annotation && $resource->getMemberId() === $resource->getFinalCache()->getMemberId()) {
