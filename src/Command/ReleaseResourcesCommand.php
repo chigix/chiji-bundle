@@ -96,8 +96,7 @@ use \Robo\Output;
         foreach ($project->getReleaseDirs() as $dir_path) {
             $this->taskCleanDir($dir_path)->run();
         }
-        // Scan all of the resource from the sourceDirs defined in roadmaps<br/>
-        // with registering.
+        $project->getCacheManager()->openCache();
         foreach ($project->getSourceDirs() as $dir_path) {
             if (is_dir($dir_path)) {
                 $finder = new Finder();
@@ -107,6 +106,12 @@ use \Robo\Output;
                         $this->say('<' . $road->getName() . '>:' . $file->getPathname());
                     }
                 }
+            }
+        }
+        foreach ($project->getRegisteredResources() as $resource) {
+            /* @var $resource \Chigi\Chiji\File\AbstractResourceFile */
+            if ($resource instanceof \Chigi\Chiji\File\Annotation && $resource->getMemberId() === $resource->getFinalCache()->getMemberId()) {
+                $resource->analyzeAnnotations();
             }
         }
         //$template_path = $this->getContainer()->get('templating.locator')->locate($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:chiji:edit.html.twig'));
@@ -137,7 +142,8 @@ use \Robo\Output;
             /* @var $function FunctionAnnotation */
             $function->execute();
         }
-        exit;
+        $project->getCacheManager()->closeCache();
+        return;
         var_dump($kernel->getEnvironment());
         var_dump($bundle->getPath() . '/Resources/');
         var_dump($this->getBasePathForClass($bundle->getName(), $bundle->getNamespace(), $bundle->getPath()));
