@@ -96,6 +96,11 @@ use \Robo\Output;
         foreach ($project->getReleaseDirs() as $dir_path) {
             $this->taskCleanDir($dir_path)->run();
         }
+        $twig_stack_dir = new \Chigi\Component\IO\File("Resources/views/chiji", $bundle->getPath());
+        if (!$twig_stack_dir->exists()) {
+            $twig_stack_dir->mkdirs();
+        }
+        $this->taskCleanDir($twig_stack_dir->getAbsolutePath())->run();
         $project->getCacheManager()->openCache();
         do {
             $newly_registered_pathhash = array();
@@ -107,10 +112,12 @@ use \Robo\Output;
                         if (!is_null($project->getResourceByFile($file))) {
                             continue;
                         }
-                        array_push($newly_registered_pathhash, md5($file->getAbsolutePath()));
                         if (($road = $project->getMatchRoad($file)) instanceof SourceRoad) {
                             $this->say('Registered <' . $road->getName() . '>:' . $file->getAbsolutePath());
+                        } else {
+                            continue;
                         }
+                        array_push($newly_registered_pathhash, md5($file->getAbsolutePath()));
                     }
                 }
             }
@@ -130,6 +137,17 @@ use \Robo\Output;
                 $resource->analyzeAnnotations();
             }
         }
+        foreach ($project->getReleasesCollection() as $resource) {
+            /* @var $resource \Chigi\Chiji\File\AbstractResourceFile */
+            $project->getMatchRoad($resource->getFinalCache()->getFile())->releaseResource($resource->getFinalCache());
+            $this->say("[Released] " . $resource->getRealPath());
+        }
+        foreach (StaticsManager::getPostEndFunctionAnnotations() as $function) {
+            /* @var $function FunctionAnnotation */
+            $function->execute();
+        }
+        $project->getCacheManager()->closeCache();
+        return;
         //$template_path = $this->getContainer()->get('templating.locator')->locate($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:chiji:edit.html.twig'));
         //var_dump($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:Post:edit.html.twig')->getPath());
         //var_dump($this->getTemplatePath($this->getContainer()->get('templating.name_parser')->parse('ChigiBlogBundle:Post:edit.html.twig')));
@@ -154,12 +172,6 @@ use \Robo\Output;
 //                }
 //            }
 //        }
-        foreach (StaticsManager::getPostEndFunctionAnnotations() as $function) {
-            /* @var $function FunctionAnnotation */
-            $function->execute();
-        }
-        $project->getCacheManager()->closeCache();
-        return;
         var_dump($kernel->getEnvironment());
         var_dump($bundle->getPath() . '/Resources/');
         var_dump($this->getBasePathForClass($bundle->getName(), $bundle->getNamespace(), $bundle->getPath()));

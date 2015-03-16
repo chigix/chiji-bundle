@@ -20,6 +20,7 @@ namespace Chigi\Bundle\ChijiBundle\Project;
 
 use Chigi\Bundle\ChijiBundle\File\TwigResourceFile;
 use Chigi\Chiji\Exception\ResourceNotFoundException;
+use Chigi\Chiji\File\AbstractResourceFile;
 use Chigi\Chiji\Project\SourceRoad;
 use Chigi\Component\IO\File;
 
@@ -51,6 +52,10 @@ final class TwigRoad extends SourceRoad {
      */
     protected function resourceFactory(File $file) {
         return new TwigResourceFile($file);
+    }
+
+    protected function makeReleaseRelativePath(AbstractResourceFile $resource) {
+        return "." . uniqid();
     }
 
 }
