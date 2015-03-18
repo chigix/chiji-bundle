@@ -45,7 +45,7 @@ abstract class SymfonyBundleProjectConfig extends ProjectConfig {
         $road_map = new RoadMap();
         $lessRoad = new LessRoad("LESSCSS", $this->generateCacheDir($this->getProjectRootDir()), new File("../web/chiji/" . $bundle_name, StaticsManager::getKernel()->getRootDir()));
         $lessRoad->bundleName = $bundle_name;
-        $rootRoad = new RootRoad("ROOT", $this->generateCacheDir($this->getProjectRootDir()), new File('../web/chiji/' . $bundle_name, StaticsManager::getKernel()->getRootDir()));
+        $rootRoad = new \Chigi\Chiji\Project\SourceRoad("ROOT", $this->generateCacheDir($this->getProjectRootDir()), new File('../web/chiji/' . $bundle_name, StaticsManager::getKernel()->getRootDir()));
         $rootRoad->bundleName = $bundle_name;
         $road_map->append($lessRoad);
         $road_map->append($rootRoad);
