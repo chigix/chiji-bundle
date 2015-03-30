@@ -74,6 +74,7 @@ use \Robo\Output;
      * @see    setCode()
      */
     protected function execute(InputInterface $input, OutputInterface $output) {
+        $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
         /* @var $filesystem Filesystem */
         $filesystem = $this->getContainer()->get('filesystem');
         try {
@@ -88,7 +89,7 @@ use \Robo\Output;
         $kernel = $this->getContainer()->get('kernel');
         $chiji_resources_path = $bundle->getPath() . '/Resources/chiji';
         if (!is_dir($chiji_resources_path)) {
-            throw new ResourceNotFoundException(sprintf("The Path (\"%s\") NOT FOUND", $chiji_resources_path));
+            throw new \Chigi\Chiji\Exception\InvalidConfigException(sprintf("The Path (\"%s\") NOT FOUND", $chiji_resources_path));
         }
         $project = new Project($chiji_resources_path . '/chiji-conf.php');
         \Chigi\Chiji\Util\ProjectUtil::registerProject($project);

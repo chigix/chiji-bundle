@@ -51,7 +51,11 @@ final class TwigRoad extends SourceRoad {
      * @throws ResourceNotFoundException
      */
     protected function resourceFactory(File $file) {
-        return new TwigResourceFile($file);
+        try {
+            return new TwigResourceFile($file);
+        } catch (\InvalidArgumentException $exc) {
+            throw new ResourceNotFoundException($file->getAbsolutePath(), $this, null, $exc->getMessage());
+        }
     }
 
     protected function makeReleaseRelativePath(AbstractResourceFile $resource) {
