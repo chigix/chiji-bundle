@@ -94,8 +94,8 @@ use \Robo\Output;
         $project = new Project($chiji_resources_path . '/chiji-conf.php');
         \Chigi\Chiji\Util\ProjectUtil::registerProject($project);
         // Clear all the release directories.
-        foreach ($project->getReleaseDirs() as $dir_path) {
-            $this->taskCleanDir($dir_path)->run();
+        foreach ($project->getReleaseDirs() as $dir) {
+            $this->taskCleanDir($dir->getAbsolutePath())->run();
         }
         $twig_stack_dir = new \Chigi\Component\IO\File("Resources/views/chiji", $bundle->getPath());
         if (!$twig_stack_dir->exists()) {
@@ -105,10 +105,10 @@ use \Robo\Output;
         $project->getCacheManager()->openCache();
         do {
             $newly_registered_pathhash = array();
-            foreach ($project->getSourceDirs() as $dir_path) {
-                if (\is_dir($dir_path)) {
+            foreach ($project->getSourceDirs() as $dir) {
+                if ($dir->isDirectory()) {
                     $finder = new Finder();
-                    foreach ($finder->files()->followLinks()->in($dir_path) as $spl_file) {
+                    foreach ($finder->files()->followLinks()->in($dir->getAbsolutePath()) as $spl_file) {
                         $file = new \Chigi\Component\IO\File($spl_file->getPathname());
                         if (!is_null($project->getResourceByFile($file))) {
                             continue;
