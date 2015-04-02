@@ -14,7 +14,7 @@
     "require": {
         "php": ">=5.4",
         "symfony/framework-bundle": "~2.2",
-        "chigix/chiji":"~1.0.0"
+        "chigix/chiji":"~1.0"
     },
     "suggest": {
         "symfony/web-profiler-bundle": "to use the data collector"
