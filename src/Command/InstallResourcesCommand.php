@@ -18,11 +18,15 @@
 
 namespace Chigi\Bundle\ChijiBundle\Command;
 
+use Chigi\Component\IO\File;
 use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
@@ -31,12 +35,17 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
  * @author 郷
  */
 class InstallResourcesCommand extends ContainerAwareCommand {
+    
+    use \Robo\Task\FileSystem;
 
     protected function configure() {
         $this->setName("chiji:install")
-                ->setDescription("Install components and demos.")
+                ->setDescription("Install components to the target bundle.")
                 ->addArgument("name", InputArgument::REQUIRED, "A bundle name")
-                ->setHelp("BANKAI");
+                ->addOption("force", null, InputOption::VALUE_NONE, "Causes The installation physically executed against the existed bundle chiji directories.")
+                ->setHelp("<info>%command.name%</info> command installs the common "
+                        . "chiji frontend configurations and dirs into the given "
+                        . "symfony bundle.");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
@@ -47,20 +56,32 @@ class InstallResourcesCommand extends ContainerAwareCommand {
             throw $exc;
         }
         $chiji_resources_path = $bundle->getPath() . '/Resources/chiji';
-        /* @var $filesystem \Symfony\Component\Filesystem\Filesystem */
+        /* @var $filesystem Filesystem */
         $filesystem = $this->getContainer()->get('filesystem');
+        if ($input->getOption("force")) {
+            $this->taskDeleteDir($chiji_resources_path)->run();
+        }
         if (is_dir($chiji_resources_path)) {
             $output->writeln("The Chiji Resources dir is not empty.");
-        } else {
-            try {
-                $filesystem->mkdir($chiji_resources_path);
-                $filesystem->mkdir($chiji_resources_path . '/modules');
-                $filesystem->touch($chiji_resources_path . '/chiji-conf.php');
-            } catch (\Symfony\Component\Filesystem\Exception\IOException $exc) {
-                throw $exc;
-            }
-            $output->writeln("The Chiji Resources dir created.");
+            return;
         }
+        try {
+            $filesystem->mkdir($chiji_resources_path);
+            $filesystem->mkdir($chiji_resources_path . '/modules');
+            $filesystem->touch($chiji_resources_path . '/chiji-conf.php');
+        } catch (IOException $exc) {
+            throw $exc;
+        }
+        $output->writeln("The Chiji Resources dir created.");
+        $this->generateConfFile($bundle, new File("chiji-conf.php", $chiji_resources_path));
+    }
+
+    private function generateConfFile(BundleInterface $bundle, File $outputFile) {
+        /* @var $chiji_bundle BundleInterface */
+        $chiji_bundle = $this->getApplication()->getKernel()->getBundle("ChigiChijiBundle");
+        $templates_dir = new File("Resources/templates", $chiji_bundle->getPath());
+        $twig = new \Twig_Environment(new \Twig_Loader_Filesystem($templates_dir->getAbsolutePath()));
+        \file_put_contents($outputFile->getAbsolutePath(), $twig->loadTemplate("ProjectConfig.php.twig")->render(array("bundleName" => $bundle->getName())));
     }
 
 }
