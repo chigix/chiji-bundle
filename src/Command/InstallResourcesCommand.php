@@ -67,13 +67,16 @@ class InstallResourcesCommand extends ContainerAwareCommand {
         }
         try {
             $filesystem->mkdir($chiji_resources_path);
-            $filesystem->mkdir($chiji_resources_path . '/modules');
+            $filesystem->mkdir($chiji_resources_path . '/app');
+            $filesystem->mkdir($chiji_resources_path . '/module');
+            $filesystem->touch($chiji_resources_path . '/component.json');
             $filesystem->touch($chiji_resources_path . '/chiji-conf.php');
         } catch (IOException $exc) {
             throw $exc;
         }
         $output->writeln("The Chiji Resources dir created.");
         $this->generateConfFile($bundle, new File("chiji-conf.php", $chiji_resources_path));
+        $this->generateBowerComponentsFile($bundle, new File("component.json", $chiji_resources_path));
     }
 
     private function generateConfFile(BundleInterface $bundle, File $outputFile) {
@@ -82,6 +85,14 @@ class InstallResourcesCommand extends ContainerAwareCommand {
         $templates_dir = new File("Resources/templates", $chiji_bundle->getPath());
         $twig = new \Twig_Environment(new \Twig_Loader_Filesystem($templates_dir->getAbsolutePath()));
         \file_put_contents($outputFile->getAbsolutePath(), $twig->loadTemplate("ProjectConfig.php.twig")->render(array("bundleName" => $bundle->getName())));
+    }
+    
+    private function generateBowerComponentsFile(BundleInterface $bundle, File $outputFile) {
+        /* @var $chiji_bundle BundleInterface */
+        $chiji_bundle = $this->getApplication()->getKernel()->getBundle("ChigiChijiBundle");
+        $templates_dir = new File("Resources/templates", $chiji_bundle->getPath());
+        $twig = new \Twig_Environment(new \Twig_Loader_Filesystem($templates_dir->getAbsolutePath()));
+        file_put_contents($outputFile->getAbsolutePath(), $twig->loadTemplate("BowerComponents.json.twig")->render(array("bundleName" => $bundle->getName())));
     }
 
 }
