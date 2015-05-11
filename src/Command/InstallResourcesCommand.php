@@ -36,7 +36,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
  */
 class InstallResourcesCommand extends ContainerAwareCommand {
     
-    use \Robo\Task\FileSystem;
+    use \Robo\Task\FileSystem\loadTasks;
 
     protected function configure() {
         $this->setName("chiji:install")

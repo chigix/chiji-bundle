@@ -43,7 +43,7 @@ use Symfony\Component\Templating\TemplateReferenceInterface;
  */
 class ReleaseResourcesCommand extends ContainerAwareCommand {
 
-    use \Robo\Task\FileSystem;
+    use \Robo\Task\FileSystem\loadTasks;
 
 use \Robo\Output;
 
