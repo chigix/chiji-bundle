@@ -45,7 +45,7 @@ class ReleaseResourcesCommand extends ContainerAwareCommand {
 
     use \Robo\Task\FileSystem\loadTasks;
 
-use \Robo\Output;
+use \Robo\Common\IO;
 
     /**
      * Configures the current command.
